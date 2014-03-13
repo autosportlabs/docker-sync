@@ -1,0 +1,4 @@
+build/
+setup.cfg
+*.egg-info/
+temp/
