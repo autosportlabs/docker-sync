@@ -1,0 +1,9 @@
+---
+name: skydns
+image: crosbymichael/skydns:latest
+command: [ "-nameserver", "8.8.8.8:53", "-domain", "docker" ]
+
+ports:
+    53/udp:
+        HostIp: 172.17.42.1
+        HostPort: 53

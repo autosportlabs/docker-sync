@@ -1,0 +1,20 @@
+---
+name: skydock
+image: crosbymichael/skydock:latest
+
+command:
+    - -ttl
+    - 30
+
+    - -environment
+    - dev
+
+    - -s
+    - /docker.sock
+
+    - -domain
+    - docker
+
+volumes:
+    /docker.sock:
+        HostPath: /var/run/docker.sock
