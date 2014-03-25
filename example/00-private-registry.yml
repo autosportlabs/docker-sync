@@ -1,0 +1,17 @@
+---
+name: private-registry
+image: blalor/docker-local-registry:latest
+
+env:
+    AWS_BUCKET: some-bucket
+    AWS_KEY: your-key
+    AWS_SECRET: your-secret
+    WORKER_SECRET_KEY: some-secret-key
+
+ports:
+    5000/tcp:
+        HostPort: 11003
+
+volumes:
+    /var/lib/docker/registry:
+        HostPath: /var/lib/docker_container_data/private-registry
