@@ -15,7 +15,7 @@ import glob
 from lib import Docker
 from lib import ContainerDefinition
 
-DOCKER = Docker(4243)
+DOCKER = Docker()
 
 def main(pull=True):
     logger = logging.getLogger("main")

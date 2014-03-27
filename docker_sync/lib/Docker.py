@@ -1,12 +1,14 @@
 # -*- encoding: utf-8 -*-
 
 import logging
+import os
 import time
-import subprocess
 import types
 
 # http://docs.python-requests.org/en/v1.2.3/
 import requests
+
+import docker as DockerPy
 
 from ImageTag import ImageTag
 from Image import Image
@@ -17,42 +19,26 @@ class Docker(object):
     
     API_VERSION = "1.8"
     
-    def __init__(self, http_port):
+    def __init__(self):
         super(Docker, self).__init__()
         
         self.logger = logging.getLogger("Docker")
         self.logger.setLevel(logging.DEBUG)
         
-        self.base_url = "http://127.0.0.1:%d/v%s" % (http_port, Docker.API_VERSION)
+        self.client = DockerPy.Client(
+            base_url=os.environ.get("DOCKER_HOST", None),
+            version=Docker.API_VERSION,
+        )
 
         self.images = {}
         self.containers = {}
 
-    def __get(self, path):
-        retVal = None
-        url = self.base_url + path
-
-        self.logger.debug(url)
-
-        start = time.time()
-        resp = requests.get(url)
-        duration = time.time() - start
-
-        self.logger.debug("%s %d %.2f", url, resp.status_code, duration)
-        
-        if resp.status_code == requests.codes.ok:
-            retVal = resp.json()
-        elif resp.status_code != requests.codes.not_found:
-            resp.raise_for_status()
-
-        return retVal
-    
     def getImages(self):
         """ returns a dict of image_tag => Image instance """
         
         self.images = {}
         
-        for img in self.__get("/images/json?all=1"):
+        for img in self.client.images(all=True):
             tags = [ ImageTag.parse(t) for t in img["RepoTags"] ]
 
             image = Image(img["Id"])
@@ -69,7 +55,7 @@ class Docker(object):
         
         retVal = None
         
-        img_data = self.__get("/images/%s/json" % name)
+        img_data = self.client.inspect_image(name)
         
         if img_data:
             retVal = Image(img_data["id"])
@@ -83,14 +69,14 @@ class Docker(object):
         ## find all containers
         self.containers = {}
         
-        for cont in self.__get("/containers/json?all=1"):
+        for cont in self.client.containers(all=True):
             ## get names without leading "/"
             names = [ n[1:] for n in cont["Names"] ]
             
             ## canonical name has no slashes
             canonical_name = [ n for n in names if "/" not in n ][0]
             
-            cont_detail = self.__get("/containers/%s/json" % canonical_name)
+            cont_detail = self.client.inspect_container(canonical_name)
             
             container = Container(canonical_name, cont_detail["ID"], Image(cont_detail["Image"]))
             
@@ -149,56 +135,77 @@ class Docker(object):
             container.command.extend(cont_detail["Args"])
             
             self.containers[container.name] = container
-            # pprint(("Container", container.__dict__))
         
         return self.containers
     
     def removeContainer(self, name):
         self.logger.info("stopping %s", name)
         
-        subprocess.check_call([ "docker", "stop", name ])
+        self.client.stop(name)
         
         ## rm -v to remove volumes; we should always explicitly map a volume to
         ## the host, so this should be a non-issue.
         self.logger.info("removing %s", name)
         
-        subprocess.check_call([ "docker", "rm", "-v", name ])
+        self.client.remove_container(name, v=True)
     
     def startContainer(self, container):
-        # docker run -d -v … -e … -p … $image $cmd
-        cmd = [ "docker", "run", "-d", "-name", container.name ]
+        create_container_params = {
+            "name":        container.name,
+            "detach":      True,
+            "command":     container.command,  ## can be None
+            "hostname":    container.hostname, ## can be None
+            "environment": container.env,      ## can be None
+            # "ports":       None,
+            # "volumes":     None,
+            # "environment": None,
+        }
         
-        if container.hostname:
-            cmd.extend([ "-h", container.hostname ])
+        start_container_params = {
+            # "port_bindings": {},
+            # "binds": {},
+        }
         
         if container.volumes is not None:
+            create_container_params["volumes"] = []
+            start_container_params["binds"] = {}
+            
             for vol_name in container.volumes:
                 vol_def = container.volumes[vol_name]
                 
-                cmd.extend([
-                    "-v",
-                    "%s:%s%s" % (vol_def["HostPath"], vol_name, "" if vol_def["ReadWrite"] else ":ro"),
-                ])
+                create_container_params["volumes"].append(vol_name)
+                start_container_params["binds"] = {
+                    ## https://github.com/dotcloud/docker-py/issues/175
+                    vol_def["HostPath"]: "%s%s" % (
+                        vol_name,
+                        "" if vol_def["ReadWrite"] else ":ro",
+                    ),
+                }
         
-        if container.env is not None:
-            for key in container.env:
-                cmd.extend([ "-e", "%s=%s" % (key, container.env[key] )])
-
         if container.ports is not None:
+            create_container_params["ports"] = []
+            start_container_params["port_bindings"] = {}
+            
             for port_spec in container.ports:
                 port_def = container.ports[port_spec]
-                
-                cmd.extend([
-                    "-p",
-                    "%s:%s:%s" % (port_def["HostIp"], port_def["HostPort"], port_spec)
-                ])
+
+                create_container_params["ports"].append(port_spec)
+                start_container_params["port_bindings"][port_spec] = (
+                    port_def["HostIp"],
+                    port_def["HostPort"],
+                )
         
-        cmd.append(str(container.image_tag))
+        resp = self.client.create_container(str(container.image_tag), **create_container_params)
+        container_id = resp["Id"]
+
+        self.logger.info("created container for %s with id %s", container.name, container_id)
         
-        if container.command:
-            cmd.extend(container.command)
+        if resp.get("Warnings", None):
+            for warning in resp["Warnings"]:
+                self.logger.warn(warning)
         
-        subprocess.check_call(cmd)
+        self.client.start(container_id, **start_container_params)
+        self.logger.info("started container %s", container.name)
     
     def getImageIdFromRegistry(self, image_tag):
         ## http://localhost:5000/v1/repositories/apps/mongodb/tags/latest
@@ -264,6 +271,6 @@ class Docker(object):
         if must_pull:
             self.logger.info("pulling %s", image_tag)
             
-            subprocess.check_call([ "docker", "pull", str(image_tag) ])
+            self.client.pull(str(image_tag))
         
         return self.getImage(image_tag)
