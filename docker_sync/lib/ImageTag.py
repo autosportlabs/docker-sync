@@ -50,11 +50,23 @@ class ImageTag(object):
         super(ImageTag, self).__init__()
         
         assert repository
-        self.repository = str(repository)
+        self._repository = str(repository)
         
-        self.tag = str(tag) if tag else "latest"
-        self.registry = str(registry) if registry else None
+        self._tag = str(tag) if tag else "latest"
+        self._registry = str(registry) if registry else None
     
+    @property
+    def repository(self):
+        return self._repository
+
+    @property
+    def tag(self):
+        return self._tag
+    
+    @property
+    def registry(self):
+        return self._registry
+
     def __hash__(self):
         return hash((self.registry, self.repository, self.tag))
     

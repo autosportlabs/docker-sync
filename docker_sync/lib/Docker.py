@@ -271,6 +271,6 @@ class Docker(object):
         if must_pull:
             self.logger.info("pulling %s", image_tag)
             
-            self.client.pull(str(image_tag))
+            self.client.pull(image_tag.repository, tag=image_tag.tag)
         
         return self.getImage(image_tag)
