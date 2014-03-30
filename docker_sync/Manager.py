@@ -8,6 +8,7 @@
 import logging
 logging.basicConfig(level=logging.WARN)
 
+import os
 import glob
 
 ## cached objects: http://stackoverflow.com/questions/13054250/python-object-cache
@@ -17,13 +18,13 @@ from lib import ContainerDefinition
 
 DOCKER = Docker()
 
-def main(pull=True):
+def main(config_dir, pull=True):
     logger = logging.getLogger("main")
     logger.setLevel(logging.DEBUG)
     
     container_defs = []
     
-    for conf in sorted(glob.glob("/etc/docker.d/containers/*.yaml")):
+    for conf in sorted(glob.glob(os.path.join(config_dir, "*.yaml"))):
         container_defs.append(ContainerDefinition.parseFile(conf))
             
     ## map of container name -> Container

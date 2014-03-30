@@ -1,35 +1,17 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 
-import getopt
-import sys
+import argparse
 import Manager
 
 def sync():
-    def usage():
-        print "Usage: %s -h | --help" % sys.argv[0]
-        print "       %s -n | --no-pull" % sys.argv[0]
-
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "hn", ["help", "no-pull"])
-    except getopt.GetoptError, err:
-        # print help information and exit:
-        print str(err) # will print something like "option -a not recognized"
-        usage()
-        sys.exit(2)
-
-    pull = True
-
-    for o, a in opts:
-        if o in ("-h", "--help"):
-            usage()
-            sys.exit()
-        elif o in ("-n", "--no-pull"):
-            pull = False
-        else:
-            assert False, "unhandled option"
-
-    Manager.main(pull)
+    parser = argparse.ArgumentParser(description="synchronize Docker containers")
+    parser.add_argument("-n", "--no-pull", dest="pull", action="store_false", help="don't pull images")
+    parser.add_argument("config_dir", help="directory containing yaml config files")
+    
+    parsed_args = parser.parse_args()
+    
+    Manager.main(parsed_args.config_dir, pull=parsed_args.pull)
 
 def gen():
     pass
