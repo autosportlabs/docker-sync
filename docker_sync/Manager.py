@@ -13,7 +13,7 @@ import glob
 
 ## cached objects: http://stackoverflow.com/questions/13054250/python-object-cache
 
-from lib import Docker
+from lib import DockerSyncWrapper as Docker
 from lib import ContainerDefinition
 
 DOCKER = Docker()
@@ -40,7 +40,16 @@ def main(config_dir, pull=True):
             image_def = DOCKER.pullImage(container_def.image_tag)
         else:
             image_def = DOCKER.getImage(container_def.image_tag)
+        
+        ## the effective command being executed is different from the configured
+        ## command because the effective command includes the entrypoint.
+        container_def.effective_command = image_def.entrypoint or []
 
+        if container_def.command:
+            container_def.effective_command += container_def.command
+        else:
+            container_def.effective_command += image_def.command or []
+        
         out_of_sync = False
         
         container_info = containers.get(container_def.name, None)
@@ -60,6 +69,12 @@ def main(config_dir, pull=True):
                 
                 out_of_sync = True
                 
+            if container_info.command != container_def.effective_command:
+                logger.info("command is different")
+                logger.debug("container_info.command %s != container_def.effective_command %s", container_info.command, container_def.effective_command)
+                
+                out_of_sync = True
+                
             if container_info.env != container_def.env:
                 logger.info("env is different")
                 logger.debug("container_info.env %s != container_def.env %s", container_info.env, container_def.env)
@@ -75,6 +90,12 @@ def main(config_dir, pull=True):
             if container_info.volumes != container_def.volumes:
                 logger.info("volumes are different")
                 logger.debug("container_info.volumes %s != container_def.volumes %s", container_info.volumes, container_def.volumes)
+                
+                out_of_sync = True
+            
+            if container_info.links != container_def.links:
+                logger.info("links are different")
+                logger.debug("container_info.links %s != container_def.links %s", container_info.links, container_def.links)
                 
                 out_of_sync = True
             

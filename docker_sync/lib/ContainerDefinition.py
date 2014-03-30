@@ -24,6 +24,7 @@ class ContainerDefinition(object):
         self.env = None
         self.ports = None
         self.volumes = None
+        self.links = None
     
     @property
     def name(self):
@@ -57,5 +58,7 @@ class ContainerDefinition(object):
             for p in container.ports:
                 if "HostIp" not in container.ports[p]:
                     container.ports[p]["HostIp"] = "0.0.0.0"
+        
+        container.links = yml.get("links", None)
         
         return container

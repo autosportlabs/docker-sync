@@ -2,6 +2,6 @@
 
 from Container import Container
 from ContainerDefinition import ContainerDefinition
-from Docker import Docker
+from DockerSyncWrapper import DockerSyncWrapper
 from Image import Image
 from ImageTag import ImageTag

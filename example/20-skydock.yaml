@@ -18,3 +18,6 @@ command:
 volumes:
     /docker.sock:
         HostPath: /var/run/docker.sock
+
+links:
+    skydns: skydns

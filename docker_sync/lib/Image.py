@@ -6,6 +6,8 @@ class Image(object):
 
         self._id = _id
         self._tags = set()
+        self.entrypoint = None
+        self.command = None
     
     @property
     def id(self):
