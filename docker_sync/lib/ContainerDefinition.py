@@ -39,7 +39,11 @@ class ContainerDefinition(object):
 
         container = cls(yml["name"], img_tag)
         container.hostname = yml.get("hostname", None)
+
         container.command = yml.get("command", None)
+        if container.command:
+            ## convert all arguments to strings
+            container.command = [ str(a) for a in container.command ]
         
         container.env = yml.get("env", None)
         if container.env is not None:
