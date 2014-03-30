@@ -14,4 +14,4 @@ ports:
 
 volumes:
     /var/lib/docker/registry:
-        HostPath: /var/lib/docker_container_data/private-registry
+        HostPath: /tmp
