@@ -20,7 +20,6 @@ class Container(object):
         self.ports = None
         self.volumes = None
         self.running = None
-        self.links = None
     
     @property
     def name(self):
@@ -39,5 +38,4 @@ class Container(object):
             "env":      self.env,
             "ports":    self.ports,
             "volumes":  self.volumes,
-            "links":    self.links,
         }, default_flow_style=False, indent="    ")

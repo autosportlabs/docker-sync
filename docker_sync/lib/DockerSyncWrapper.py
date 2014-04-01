@@ -74,34 +74,12 @@ class DockerSyncWrapper(object):
         ## find all containers
         self.containers = {}
         
-        ## https://github.com/dotcloud/docker/issues/4912
-        ## https://github.com/dotcloud/docker/issues/4910
-        ## docker rest api doesn't return information about container links
-        ## directly.  the only indication that containers are linked is when
-        ## listing all containers and parsing the Names list.  So, assuming that
-        ## the only time more than one "/" is in a container name, maintain a
-        ## mapping of links that'll be used for postprocessing
-        ## {
-        ##     "container_name": {
-        ##         "other_container_name": "alias"
-        ##     }
-        ## }
-        links = {}
-        
         for cont in self.client.containers(all=True):
             ## get names without leading "/"
             names = [ n[1:] for n in cont["Names"] ]
             
             ## canonical name has no slashes
             canonical_name = [ n for n in names if "/" not in n ][0]
-            
-            ## link alias is other_container_name/alias_for_this_container
-            for link_alias in [ n for n in names if n != canonical_name ]:
-                other_container_name, alias_for_this_container = link_alias.split("/", 1)
-                if other_container_name not in links:
-                    links[other_container_name] = {}
-                
-                links[other_container_name][canonical_name] = alias_for_this_container
             
             cont_detail = self.client.inspect_container(canonical_name)
             
@@ -163,10 +141,6 @@ class DockerSyncWrapper(object):
             
             self.containers[container.name] = container
         
-        ## fill in missing link cont_detail
-        for name in links:
-            self.containers[name].links = links[name]
-        
         return self.containers
     
     def removeContainer(self, name):
@@ -195,7 +169,6 @@ class DockerSyncWrapper(object):
         start_container_params = {
             # "port_bindings": {},
             # "binds": {},
-            # links: {},
         }
         
         if container.volumes is not None:
@@ -225,9 +198,6 @@ class DockerSyncWrapper(object):
                     port_def["HostIp"],
                     port_def["HostPort"],
                 )
-        
-        if container.links is not None:
-            start_container_params["links"] = container.links
         
         resp = self.client.create_container(str(container.image_tag), **create_container_params)
         container_id = resp["Id"]

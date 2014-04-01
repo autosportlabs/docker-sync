@@ -93,12 +93,6 @@ def main(config_dir, pull=True):
                 
                 out_of_sync = True
             
-            if container_info.links != container_def.links:
-                logger.info("links are different")
-                logger.debug("container_info.links %s != container_def.links %s", container_info.links, container_def.links)
-                
-                out_of_sync = True
-            
             if not container_info.running:
                 logger.info("container not running")
                 out_of_sync = True
