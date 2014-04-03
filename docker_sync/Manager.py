@@ -112,5 +112,3 @@ def main(config_dir, pull=True):
             logger.warn("unmanaged container; removing %s", cont_name)
             
             DOCKER.removeContainer(cont_name)
-    
-    ## @todo remove unused images
