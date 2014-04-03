@@ -19,8 +19,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "docker_sync = docker_sync.cli:sync",
-            "docker_sync_gen = docker_sync.cli:gen",
+            "docker-sync = docker_sync.cli:sync",
         ],
     },
 )
