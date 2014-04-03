@@ -7,6 +7,7 @@ setup(
     name="docker-sync",
     version="0.0.0",
     description="Configuration management for Docker containers",
+    long_description=open("README.md").read(),
     author="Brian Lalor",
     author_email="brian@autosportlabs.com",
     url="http://github.com/autosportlabs/docker-sync",
