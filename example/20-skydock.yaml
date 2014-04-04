@@ -19,6 +19,10 @@ command:
     - -domain
     - docker
 
+env:
+    GOPATH: /go
+    GOROOT: /usr/local/go
+
 volumes:
     /docker.sock:
         HostPath: /var/run/docker.sock
