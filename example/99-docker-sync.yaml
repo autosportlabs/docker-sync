@@ -1,0 +1,7 @@
+---
+name: docker-sync
+image: autosportlabs/docker-sync:latest
+
+volumes:
+    /var/run/docker.sock:
+        HostPath: /var/run/docker.sock
