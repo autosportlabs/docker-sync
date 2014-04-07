@@ -16,6 +16,7 @@ setup(
         "PyYAML >= 3.10, < 4.0",
         "argparse >= 1.1",
         "docker-py >= 0.3.0, < 0.4.0",
+        "setuptools",
     ],
     entry_points={
         "console_scripts": [
