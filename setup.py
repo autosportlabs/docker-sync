@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="docker-sync",
-    version="1.0.0",
+    version="1.0.1",
     description="Configuration management for Docker containers",
     long_description=open("README.md").read(),
     author="Brian Lalor",
