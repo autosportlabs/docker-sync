@@ -35,7 +35,7 @@ class ImageTag(object):
                 repo_path = repo_path[0]
         else:
             match = re.match(
-                r"""(?P<registry>[a-z][a-z0-9.-]+(:\d+)?)/(?P<repo_path>[^:]+)(:(?P<repo_tag>.+))?""",
+                r"""(?P<registry>([a-z][a-z0-9.-]+|(\d+\.){3}\d+)(:\d+)?)/(?P<repo_path>[^:]+)(:(?P<repo_tag>.+))?""",
                 tag_str
             )
             
