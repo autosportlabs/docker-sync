@@ -193,7 +193,7 @@ class DockerSyncWrapper(object):
             for port_spec in container.ports:
                 port_def = container.ports[port_spec]
 
-                create_container_params["ports"].append(port_spec)
+                create_container_params["ports"].append(tuple(port_spec.split("/")))
                 start_container_params["port_bindings"][port_spec] = (
                     port_def["HostIp"],
                     port_def["HostPort"],
