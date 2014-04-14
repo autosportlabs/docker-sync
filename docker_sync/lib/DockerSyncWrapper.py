@@ -226,7 +226,7 @@ class DockerSyncWrapper(object):
         while not success and attempts < 3:
             attempts += 1
             
-            self.logger.debug(regUrl)
+            self.logger.debug("querying registry: " + regUrl)
             
             try:
                 start = time.time()
@@ -274,7 +274,12 @@ class DockerSyncWrapper(object):
         
         if must_pull:
             self.logger.info("pulling %s", image_tag)
-            
-            self.client.pull(image_tag.repository, tag=image_tag.tag)
+                
+            repoUrl = image_tag.repository
+
+            if image_tag.registry is not None:
+                repoUrl = "/".join((image_tag.registry, repoUrl))
+
+            self.client.pull(repoUrl, tag=image_tag.tag)
         
         return self.getImage(image_tag)
