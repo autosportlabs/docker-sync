@@ -12,6 +12,9 @@ setup(
     author_email="brian@autosportlabs.com",
     url="http://github.com/autosportlabs/docker-sync",
     packages=find_packages(),
+    setup_requires=[
+        'nose >= 1.3.4, < 1.4.0',
+    ],
     install_requires=[
         "PyYAML >= 3.10, < 4.0",
         "argparse >= 1.1",
