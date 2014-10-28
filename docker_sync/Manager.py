@@ -18,9 +18,68 @@ from lib import ContainerDefinition
 
 DOCKER = Docker()
 
+LOGGER = logging.getLogger("main")
+
+def containerIsOutOfSync(container_def, container_info, image_info):
+    out_of_sync = False
+
+    ## the effective command being executed is different from the configured
+    ## command because the effective command includes the entrypoint.
+    effective_command = image_info.entrypoint or []
+
+    if container_def.command:
+        effective_command += container_def.command
+    else:
+        effective_command += image_info.command or []
+    
+    ## include image's env vars when comparing container def's vars
+    effective_env = dict(image_info.env.items() + container_def.env.items())
+
+    if container_info.image.id != image_info.id:
+        LOGGER.info("image id does not match")
+        LOGGER.debug("container_info.image.id %s != image_info.id %s", container_info.image.id, image_info.id)
+        
+        out_of_sync = True
+        
+    if container_def.hostname is not None and container_info.hostname != container_def.hostname:
+        LOGGER.info("hostname is different")
+        LOGGER.debug("container_info.hostname %s != container_def.hostname %s", container_info.hostname, container_def.hostname)
+        
+        out_of_sync = True
+        
+    if container_info.command != effective_command:
+        LOGGER.info("command is different")
+        LOGGER.debug("container_info.command %s != effective_command %s", container_info.command, effective_command)
+        
+        out_of_sync = True
+        
+    if container_info.env != effective_env:
+        LOGGER.info("env is different")
+        LOGGER.debug("container_info.env %s != effective_env %s", container_info.env, effective_env)
+        
+        out_of_sync = True
+        
+    if container_info.ports != container_def.ports:
+        LOGGER.info("ports are different")
+        LOGGER.debug("container_info.ports %s != container_def.ports %s", container_info.ports, container_def.ports)
+        
+        out_of_sync = True
+        
+    if container_info.volumes != container_def.volumes:
+        LOGGER.info("volumes are different")
+        LOGGER.debug("container_info.volumes %s != container_def.volumes %s", container_info.volumes, container_def.volumes)
+        
+        out_of_sync = True
+    
+    if not container_info.running:
+        LOGGER.info("container not running")
+        out_of_sync = True
+    
+    return out_of_sync
+
+
 def main(config_dir, pull=True):
-    logger = logging.getLogger("main")
-    logger.setLevel(logging.DEBUG)
+    LOGGER.setLevel(logging.DEBUG)
     
     container_defs = []
     
@@ -34,81 +93,32 @@ def main(config_dir, pull=True):
     ## come first
     ## delete out-of-sync and unmanaged containers
     for container_def in container_defs:
-        logger.info(container_def.name)
+        LOGGER.info(container_def.name)
         
         if pull:
-            image_def = DOCKER.pullImage(container_def.image_tag)
+            image_info = DOCKER.pullImage(container_def.image_tag)
         else:
-            image_def = DOCKER.getImage(container_def.image_tag)
-        
-        ## the effective command being executed is different from the configured
-        ## command because the effective command includes the entrypoint.
-        container_def.effective_command = image_def.entrypoint or []
-
-        if container_def.command:
-            container_def.effective_command += container_def.command
-        else:
-            container_def.effective_command += image_def.command or []
-        
-        out_of_sync = False
+            image_info = DOCKER.getImage(container_def.image_tag)
         
         container_info = containers.get(container_def.name, None)
-
-        if container_info is None:
-            out_of_sync = True
-        else:
-            if container_info.image.id != image_def.id:
-                logger.info("image id does not match")
-                logger.debug("container_info.image.id %s != image_def.id %s", container_info.image.id, image_def.id)
-                
-                out_of_sync = True
-                
-            if container_def.hostname is not None and container_info.hostname != container_def.hostname:
-                logger.info("hostname is different")
-                logger.debug("container_info.hostname %s != container_def.hostname %s", container_info.hostname, container_def.hostname)
-                
-                out_of_sync = True
-                
-            if container_info.command != container_def.effective_command:
-                logger.info("command is different")
-                logger.debug("container_info.command %s != container_def.effective_command %s", container_info.command, container_def.effective_command)
-                
-                out_of_sync = True
-                
-            if container_info.env != container_def.env:
-                logger.info("env is different")
-                logger.debug("container_info.env %s != container_def.env %s", container_info.env, container_def.env)
-                
-                out_of_sync = True
-                
-            if container_info.ports != container_def.ports:
-                logger.info("ports are different")
-                logger.debug("container_info.ports %s != container_def.ports %s", container_info.ports, container_def.ports)
-                
-                out_of_sync = True
-                
-            if container_info.volumes != container_def.volumes:
-                logger.info("volumes are different")
-                logger.debug("container_info.volumes %s != container_def.volumes %s", container_info.volumes, container_def.volumes)
-                
-                out_of_sync = True
-            
-            if not container_info.running:
-                logger.info("container not running")
-                out_of_sync = True
+        
+        out_of_sync = True
+        
+        if container_info is not None:
+            out_of_sync = containerIsOutOfSync(container_def, container_info, image_info)
             
         if out_of_sync:
             if container_info:
-                logger.info("removing %s", container_def.name)
+                LOGGER.info("removing %s", container_def.name)
                 DOCKER.removeContainer(container_def.name)
             
-            logger.info("creating %s", container_def.name)
+            LOGGER.info("creating %s", container_def.name)
             DOCKER.startContainer(container_def)
     
     ## delete unmanaged containers
     defined_container_names = [ c.name for c in container_defs ]
     for cont_name in DOCKER.getContainers():
         if cont_name not in defined_container_names:
-            logger.warn("unmanaged container; removing %s", cont_name)
+            LOGGER.warn("unmanaged container; removing %s", cont_name)
             
             DOCKER.removeContainer(cont_name)

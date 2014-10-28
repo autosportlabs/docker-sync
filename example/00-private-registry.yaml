@@ -1,12 +1,10 @@
 ---
 name: private-registry
-image: blalor/docker-local-registry:latest
+image: registry:0.8.1
 
 env:
-    AWS_BUCKET: some-bucket
-    AWS_KEY: your-key
-    AWS_SECRET: your-secret
-    WORKER_SECRET_KEY: some-secret-key
+    SETTINGS_FLAVOR: local
+    STORAGE_PATH: /var/lib/docker/registry
 
 ports:
     5000/tcp:

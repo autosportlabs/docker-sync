@@ -1,0 +1,13 @@
+---
+name: hosts
+image: blalor/docker-hosts:latest
+
+volumes:
+    /var/run/docker.sock:
+        HostPath: /var/run/docker.sock
+    /srv/hosts:
+        HostPath: /var/lib/docker/hosts
+
+command:
+    - --domain-name=dev.docker
+    - /srv/hosts

@@ -21,7 +21,7 @@ class ContainerDefinition(object):
         
         self.hostname = None
         self.command = []
-        self.env = None
+        self.env = {}
         self.ports = None
         self.volumes = None
     
@@ -44,11 +44,10 @@ class ContainerDefinition(object):
             ## convert all arguments to strings
             container.command = [ str(a) for a in container.command ]
         
-        container.env = yml.get("env", None)
-        if container.env is not None:
-            for key in container.env:
-                ## coerce all values to strings
-                container.env[key] = str(container.env[key])
+        container.env = yml.get("env", {})
+        for key in container.env:
+            ## coerce all values to strings
+            container.env[key] = str(container.env[key])
         
         container.volumes = yml.get("volumes", None)
         if container.volumes is not None:

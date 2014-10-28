@@ -1,6 +1,28 @@
 # -*- encoding: utf-8 -*-
 
 class Image(object):
+    @classmethod
+    def fromJson(cls, json):
+        """creates Image instance from a Docker image JSON dict"""
+        
+        img = Image(json["id"])
+        
+        container_cfg = json.get("config", {})
+        
+        img.entrypoint = container_cfg.get("Entrypoint", None)
+        img.command = container_cfg.get("Cmd", None)
+        
+        for env in container_cfg.get("Env", []):
+            k, v = env.split("=", 1)
+            
+            img.env[k] = v
+        
+        for k in ("PATH", "HOME"):
+            if k in img.env:
+                del img.env[k]
+        
+        return img
+
     def __init__(self, _id):
         super(Image, self).__init__()
 
@@ -8,6 +30,7 @@ class Image(object):
         self._tags = set()
         self.entrypoint = None
         self.command = None
+        self.env = {}
     
     @property
     def id(self):
