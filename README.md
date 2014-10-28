@@ -36,4 +36,8 @@ or
 You can add `--no-pull` to skip pulling images; very useful when you're
 iterating on your configs.
 
+## running tests
+
+    python setup.py nosetests
+
 [dogestry]: https://github.com/blake-education/dogestry
