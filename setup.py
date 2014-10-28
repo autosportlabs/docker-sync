@@ -13,13 +13,17 @@ setup(
     url="http://github.com/autosportlabs/docker-sync",
     packages=find_packages(),
     setup_requires=[
-        'nose >= 1.3.4, < 1.4.0',
+        "nose >= 1.3.4, < 1.4.0",
+    ],
+    tests_require=[
+        "HTTPretty >= 0.8.3, < 0.9.0"
     ],
     install_requires=[
         "PyYAML >= 3.10, < 4.0",
         "argparse >= 1.1",
         "docker-py >= 0.3.0, < 0.4.0",
         "setuptools",
+        "semantic_version >= 2.3.1, < 2.4.0"
     ],
     entry_points={
         "console_scripts": [

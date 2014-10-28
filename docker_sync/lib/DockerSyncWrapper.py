@@ -8,6 +8,8 @@ import types
 # http://docs.python-requests.org/en/v1.2.3/
 import requests
 
+import semantic_version as semver
+
 import docker as DockerPy
 
 from ImageTag import ImageTag
@@ -19,14 +21,14 @@ class DockerSyncWrapper(object):
     
     API_VERSION = "1.8"
     
-    def __init__(self):
+    def __init__(self, docker_host=None):
         super(DockerSyncWrapper, self).__init__()
         
         self.logger = logging.getLogger("Docker")
         self.logger.setLevel(logging.DEBUG)
         
         self.client = DockerPy.Client(
-            base_url=os.environ.get("DOCKER_HOST", None),
+            base_url=docker_host if docker_host else os.environ.get("DOCKER_HOST", None),
             version=DockerSyncWrapper.API_VERSION,
         )
 
@@ -181,10 +183,17 @@ class DockerSyncWrapper(object):
                 create_container_params["volumes"].append(vol_name)
 
                 ## https://github.com/dotcloud/docker-py/issues/175
-                start_container_params["binds"][vol_def["HostPath"]] = "%s%s" % (
-                    vol_name,
-                    "" if vol_def["ReadWrite"] else ":ro",
-                )
+                if semver.Version(DockerPy.__version__) < semver.Version("0.3.2"):
+                    start_container_params["binds"][vol_def["HostPath"]] = "%s%s" % (
+                        vol_name,
+                        ":rw" if vol_def["ReadWrite"] else ":ro",
+                    )
+                else:
+                    start_container_params["binds"][vol_def["HostPath"]] = {
+                        "bind": vol_name,
+                        "ro": not vol_def["ReadWrite"],
+                    }
+                    
         
         if container.ports is not None:
             create_container_params["ports"] = []
@@ -258,7 +267,6 @@ class DockerSyncWrapper(object):
             layers = dict(map(lambda x: (x["name"], x["layer"]), layers))
 
         return layers[image_tag.tag]
-
 
     def pullImage(self, image_tag):
         # @todo don't need to pull all the images; use self.getImage()

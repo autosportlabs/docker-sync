@@ -3,3 +3,5 @@ setup.cfg
 *.egg-info/
 temp/
 dist/
+*.egg
+_ve/

@@ -1,0 +1,15 @@
+---
+name: elasticsearch
+image: autosportlabs/elasticsearch:latest
+
+volumes:
+    /etc/hosts:
+        HostPath: /var/lib/docker/hosts
+        ReadWrite: false
+    /var/lib/elasticsearch:
+        HostPath: /var/lib/docker_container_data/elasticsearch
+
+env:
+    ES_HEAP_SIZE: 2048m
+    SERVICE_9200_NAME: elasticsearch
+    SERVICE_9200_TAGS: "rest,http"
