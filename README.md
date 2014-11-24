@@ -21,6 +21,7 @@ to) a traditional Docker registry.
 
 Or from a clone:
 
+    pip install -r requirements.txt
     pip install .
 
 ## example usage
