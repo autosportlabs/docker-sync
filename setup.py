@@ -5,7 +5,7 @@ from distutils.core import setup
 
 setup(
     name="docker-sync",
-    version="1.2.0",
+    version="1.2.1",
     description="Configuration management for Docker containers",
     long_description=open("README.md").read(),
     author="Brian Lalor",
