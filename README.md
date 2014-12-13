@@ -39,6 +39,8 @@ iterating on your configs.
 
 ## running tests
 
-    python setup.py nosetests
+    nosetests
+
+Requires nosetests and httpretty
 
 [dogestry]: https://github.com/blake-education/dogestry
