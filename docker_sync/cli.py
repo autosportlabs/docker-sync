@@ -7,7 +7,7 @@ import Manager
 def sync():
     parser = argparse.ArgumentParser(description="synchronize Docker containers")
     parser.add_argument("-n", "--no-pull", dest="pull", action="store_false", help="don't pull images")
-    parser.add_argument("-i", "--allow-insecure-url", dest="insecure_registry", action="allow_insecure", 
+    parser.add_argument("-i", "--allow-insecure-url", dest="insecure_registry", action="store_true", 
             help="allow pulling from non-ssl repositories")
     parser.add_argument("config_dir", help="directory containing yaml config files")
     
