@@ -78,7 +78,7 @@ def containerIsOutOfSync(container_def, container_info, image_info):
     return out_of_sync
 
 
-def main(config_dir, pull=True):
+def main(config_dir, pull=True, insecure_registry=False):
     LOGGER.setLevel(logging.DEBUG)
     
     container_defs = []
@@ -96,7 +96,7 @@ def main(config_dir, pull=True):
         LOGGER.info(container_def.name)
         
         if pull:
-            image_info = DOCKER.pullImage(container_def.image_tag)
+            image_info = DOCKER.pullImage(container_def.image_tag, insecure_registry)
         else:
             image_info = DOCKER.getImage(container_def.image_tag)
         

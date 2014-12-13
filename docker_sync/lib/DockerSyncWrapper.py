@@ -206,7 +206,7 @@ class DockerSyncWrapper(object):
 
         return layers[image_tag.tag]
 
-    def pullImage(self, image_tag):
+    def pullImage(self, image_tag, insecure_registry=False):
         # @todo don't need to pull all the images; use self.getImage()
         local_images = self.getImages()
         
@@ -226,6 +226,6 @@ class DockerSyncWrapper(object):
             if image_tag.registry is not None:
                 repoUrl = "/".join((image_tag.registry, repoUrl))
 
-            self.client.pull(repoUrl, tag=image_tag.tag)
+            self.client.pull(repoUrl, tag=image_tag.tag, insecure_registry=insecure_registry)
         
         return self.getImage(image_tag)
