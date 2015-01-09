@@ -83,10 +83,18 @@ class DockerSyncWrapper(object):
         
         return self.containers
     
-    def removeContainer(self, name):
+    def removeContainer(self, name, remove_delay=None):
         self.logger.info("stopping %s", name)
         
         self.client.stop(name)
+        
+        ## http://blog.hashbangbash.com/2014/11/docker-devicemapper-fix-for-device-or-resource-busy-ebusy/
+        ## https://github.com/docker/docker/issues/8176
+        ## https://github.com/docker/docker/issues/5684
+        ## attempted workaround is to sleep between stop and remove
+        if remove_delay is not None:
+            self.logger.info("delaying %ds before removing" % remove_delay)
+            time.sleep(remove_delay)
         
         ## rm -v to remove volumes; we should always explicitly map a volume to
         ## the host, so this should be a non-issue.
