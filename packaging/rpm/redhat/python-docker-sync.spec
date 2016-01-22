@@ -4,7 +4,7 @@
 #
 
 Name:    python-docker-sync
-Version: 1.2.4
+Version: 1.2.5
 Release: 1%{?dist}
 Summary: Docker container sync and management utility
 License: UNKNOWN
@@ -17,6 +17,7 @@ Requires:          python2
 Requires:          python-docker-py >= 0.6.0
 Requires:          PyYAML >= 3.10
 Requires:          python-semantic_version >= 2.3.1
+Requires:          docker >= 1.8.0
 
 %{?python_provide: %python_provide python-%{srcname}}
 
@@ -52,5 +53,10 @@ install -m0755 scripts/docker-sync %{buildroot}%{_bindir}/docker-sync
 
 
 %changelog
+* Fri Jan 22 2016 Stieg <andrew.stiegmann@gmail.com> - 1.2.5-1.el7.centos
+- Update package to support Docker API version 1.20 from 1.8
+- Add new Docker dependency >= 1.8.0 since that is when API v 1.20 was
+  introduced.
+
 * Thu Oct 29 2015 Stieg <andrew.stiegmann@gmail.com> - 1.2.4-1.el7.centos
 - Initial creation of the RHEL 7 spec file
