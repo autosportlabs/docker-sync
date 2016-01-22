@@ -12,14 +12,14 @@ from ContainerDefinition import ContainerDefinition
 class TestDockerSyncWrapper():
     DOCKER_HOST_URL = "http://docker.local:5454"
     EXAMPLE_DIR = os.path.abspath(os.path.join(__file__, "../../../example"))
-    
+    VERSION = "1.20"
     @httpretty.activate
     def test_getImages(self):
         docker = DockerSyncWrapper(docker_host=self.DOCKER_HOST_URL)
 
         httpretty.register_uri(
             httpretty.GET,
-            self.DOCKER_HOST_URL + "/v1.8/images/json",
+            self.DOCKER_HOST_URL + "/v%s/images/json" % (self.VERSION),
             body=json.dumps([
                 {
                    "RepoTags": [
@@ -46,13 +46,13 @@ class TestDockerSyncWrapper():
             ]),
             content_type="application/json",
         )
-        
+
         images = docker.getImages()
 
         eq_(httpretty.last_request().querystring["all"], ["1"])
-        
+
         assert ImageTag.parse("ubuntu:12.10") in images, "tag not found"
-    
+
     @httpretty.activate
     def test_getImageIdFromRegistry(self):
         docker = DockerSyncWrapper(docker_host=self.DOCKER_HOST_URL)
@@ -65,7 +65,7 @@ class TestDockerSyncWrapper():
             ]),
             content_type="application/json",
         )
-        
+
         img_id = docker.getImageIdFromRegistry(ImageTag("some/repo", tag="latest"))
 
         eq_("84422536", img_id)
@@ -76,7 +76,7 @@ class TestDockerSyncWrapper():
 
         httpretty.register_uri(
             httpretty.GET,
-            self.DOCKER_HOST_URL + "/v1.8/containers/json",
+            self.DOCKER_HOST_URL + "/v%s/containers/json" % (self.VERSION),
             body=json.dumps([
                 {
                     "Command":"/bin/sh -c 'exec docker-registry'",
@@ -92,13 +92,13 @@ class TestDockerSyncWrapper():
             ]),
             content_type="application/json",
         )
-        
+
         httpretty.register_uri(
             httpretty.GET,
-            self.DOCKER_HOST_URL + "/v1.8/containers/pensive_euclid/json",
+            self.DOCKER_HOST_URL + "/v%s/containers/pensive_euclid/json" % (self.VERSION),
             body=json.dumps(
                 {
-                    "ID": "68afa73fe4d5a4012566a24b5f0487fd25b154d66a593b4e67425199487099a5",
+                    "Id": "68afa73fe4d5a4012566a24b5f0487fd25b154d66a593b4e67425199487099a5",
                     "Created": "2014-10-21T15:39:14.468411999Z",
                     "Path": "/bin/sh",
                     "Args": [ "-c", "exec docker-registry" ],
@@ -201,7 +201,7 @@ class TestDockerSyncWrapper():
             ),
             content_type="application/json",
         )
-        
+
         containers = docker.getContainers()
 
         eq_(httpretty.HTTPretty.latest_requests[0].querystring["all"], ["1"])
@@ -212,12 +212,12 @@ class TestDockerSyncWrapper():
     def test_startContainer(self):
         docker = DockerSyncWrapper(docker_host=self.DOCKER_HOST_URL)
         cdef = ContainerDefinition.parseFile(os.path.join(self.EXAMPLE_DIR, "30-elasticsearch.yaml"))
-        
+
         container_id = "e90e34656806"
-        
+
         httpretty.register_uri(
             httpretty.POST,
-            self.DOCKER_HOST_URL + "/v1.8/containers/create",
+            self.DOCKER_HOST_URL + "/v%s/containers/create" % (self.VERSION),
             body=json.dumps(
                 {
                     "Id": container_id,
@@ -227,19 +227,19 @@ class TestDockerSyncWrapper():
             content_type="application/json",
             status=201,
         )
-        
+
         httpretty.register_uri(
             httpretty.POST,
-            "%s/v1.8/containers/%s/start" % (self.DOCKER_HOST_URL, container_id),
+            "%s/v%s/containers/%s/start" % (self.DOCKER_HOST_URL, self.VERSION, container_id),
             content_type="text/plain",
             status=204,
         )
 
         docker.startContainer(cdef)
-        
+
         # create_req = json.loads(httpretty.HTTPretty.latest_requests[0].body)
         start_req = json.loads(httpretty.HTTPretty.latest_requests[1].body)
-        
+
         eq_(
             set([
                 "/var/lib/docker_container_data/elasticsearch:/var/lib/elasticsearch:rw",

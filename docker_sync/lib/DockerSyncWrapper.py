@@ -19,7 +19,7 @@ from Container import Container
 class DockerSyncWrapper(object):
     """interfaces with the local Docker daemon"""
 
-    API_VERSION = "1.8"
+    API_VERSION = "1.20"
 
     def __init__(self, docker_host=None):
         super(DockerSyncWrapper, self).__init__()
@@ -54,7 +54,6 @@ class DockerSyncWrapper(object):
 
     def getImage(self, name):
         """ returns an Image for the given name, or None if not found """
-
         retVal = None
 
         img_data = self.client.inspect_image(name)
@@ -223,12 +222,10 @@ class DockerSyncWrapper(object):
 
         if image_tag in local_images and local_images[image_tag].id == registry_img_id:
             self.logger.info("%s is up to date", image_tag)
-
             must_pull = False
 
         if must_pull:
             self.logger.info("pulling %s", image_tag)
-
             repoUrl = image_tag.repository
 
             if image_tag.registry is not None:

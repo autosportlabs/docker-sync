@@ -7,11 +7,11 @@ from nose.tools import eq_
 class TestImage:
     def test_fromJson(self):
         img = Image.fromJson({
-            "id": "2e2d7133e4a578bd861e85e7195412201f765d050af78c7906841ea62eb6f7dd",
-            "parent": "c79dab5561020bda9ce1b1cbe76283fc95f824cfb26a8a21a384993ed7f392bd",
-            "created": "2014-10-21T08:50:44.448455269Z",
-            "container": "b756100785c797b9f43d36f249b0d5688d88a1ca68df56d915cb436c4bfc7286",
-            "config": {
+            "Id": "2e2d7133e4a578bd861e85e7195412201f765d050af78c7906841ea62eb6f7dd",
+            "Parent": "c79dab5561020bda9ce1b1cbe76283fc95f824cfb26a8a21a384993ed7f392bd",
+            "Created": "2014-10-21T08:50:44.448455269Z",
+            "Container": "b756100785c797b9f43d36f249b0d5688d88a1ca68df56d915cb436c4bfc7286",
+            "Config": {
                 "Hostname": "965c252e48c3",
                 "User": "",
                 "Memory": 0,

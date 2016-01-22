@@ -11,13 +11,13 @@ class TestManager:
 
     def test_containerIsOutOfSync(self):
         container_def = ContainerDefinition.parseFile(os.path.join(self.EXAMPLE_DIR, "00-private-registry.yaml"))
-        
+
         img_info = Image.fromJson({
-            "id": "2e2d7133e4a578bd861e85e7195412201f765d050af78c7906841ea62eb6f7dd",
-            "parent": "c79dab5561020bda9ce1b1cbe76283fc95f824cfb26a8a21a384993ed7f392bd",
-            "created": "2014-10-21T08:50:44.448455269Z",
-            "container": "b756100785c797b9f43d36f249b0d5688d88a1ca68df56d915cb436c4bfc7286",
-            "config": {
+            "Id": "2e2d7133e4a578bd861e85e7195412201f765d050af78c7906841ea62eb6f7dd",
+            "Parent": "c79dab5561020bda9ce1b1cbe76283fc95f824cfb26a8a21a384993ed7f392bd",
+            "Created": "2014-10-21T08:50:44.448455269Z",
+            "Container": "b756100785c797b9f43d36f249b0d5688d88a1ca68df56d915cb436c4bfc7286",
+            "Config": {
                 "OnBuild": [],
                 "NetworkDisabled": False,
                 "Entrypoint": None,
@@ -151,7 +151,7 @@ class TestManager:
             ],
             "Path": "/bin/sh",
             "Created": "2014-10-28T16:38:31.20825271Z",
-            "ID": "758a155a0374fa7e163e4fc71e96cd1bd7de37674dd5f552b9183789366e91f7",
+            "Id": "758a155a0374fa7e163e4fc71e96cd1bd7de37674dd5f552b9183789366e91f7",
             "ResolvConfPath": "/etc/resolv.conf",
             "HostnamePath": "/var/lib/docker/containers/758a155a0374fa7e163e4fc71e96cd1bd7de37674dd5f552b9183789366e91f7/hostname",
             "HostsPath": "/var/lib/docker/containers/758a155a0374fa7e163e4fc71e96cd1bd7de37674dd5f552b9183789366e91f7/hosts",
@@ -166,19 +166,19 @@ class TestManager:
 
     def test_containerIsOutOfSync_hosts(self):
         container_def = ContainerDefinition.parseFile(os.path.join(self.EXAMPLE_DIR, "00-hosts.yaml"))
-        
+
         ## blalor/docker-hosts:latest
         img_info = Image.fromJson({
             "Size": 0,
-            "os": "linux",
-            "architecture": "amd64",
-            "id": "98e7ca605530c6ee637e175f08e692149a4d019b384e421e661bd35601b25975",
-            "parent": "15e3a43eb69d67df5a6ae1f3b3e87407f3b82157bf54fe8a5dc997cf2ce6528a",
-            "created": "2014-07-30T01:02:04.516066768Z",
-            "container": "5d7384258a7ac29d8eabe30b6b1d83dfe4a8925440f33982b439731906a087f2",
-            "docker_version": "1.1.1",
-            "author": "Brian Lalor <blalor@bravo5.org>",
-            "config": {
+            "Os": "linux",
+            "Architecture": "amd64",
+            "Id": "98e7ca605530c6ee637e175f08e692149a4d019b384e421e661bd35601b25975",
+            "Parent": "15e3a43eb69d67df5a6ae1f3b3e87407f3b82157bf54fe8a5dc997cf2ce6528a",
+            "Created": "2014-07-30T01:02:04.516066768Z",
+            "Container": "5d7384258a7ac29d8eabe30b6b1d83dfe4a8925440f33982b439731906a087f2",
+            "Docker_version": "1.1.1",
+            "Author": "Brian Lalor <blalor@bravo5.org>",
+            "Config": {
                 "OnBuild": [],
                 "NetworkDisabled": False,
                 "Entrypoint": [
@@ -294,7 +294,7 @@ class TestManager:
             ],
             "Path": "/usr/local/bin/docker-hosts",
             "Created": "2014-10-28T18:22:51.142918682Z",
-            "ID": "04bf6ca07d2c610235f57b041e224c19b6fab51d400a599ee0f1b1c53e12201f",
+            "Id": "04bf6ca07d2c610235f57b041e224c19b6fab51d400a599ee0f1b1c53e12201f",
             "ResolvConfPath": "/etc/resolv.conf",
             "HostnamePath": "/var/lib/docker/containers/04bf6ca07d2c610235f57b041e224c19b6fab51d400a599ee0f1b1c53e12201f/hostname",
             "HostsPath": "/var/lib/docker/containers/04bf6ca07d2c610235f57b041e224c19b6fab51d400a599ee0f1b1c53e12201f/hosts",
